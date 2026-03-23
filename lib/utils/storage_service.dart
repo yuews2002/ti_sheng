@@ -27,15 +27,21 @@ class StorageService {
     return prefs.getString("$_aiConfig.key");
   }
 
+  static Future<String?> loadAiContent() async {
+    final prefs = await getPrefs();
+    return prefs.getString("$_aiConfig.content");
+  }
+
   static Future<String?> loadAiModel() async {
     final prefs = await getPrefs();
     return prefs.getString("$_aiConfig.model");
   }
 
-  static Future<void> saveAiConfig(String key, String model) async {
+  static Future<void> saveAiConfig(String key, String model,String content) async {
     final prefs = await getPrefs();
     await prefs.setString("$_aiConfig.key", key);
     await prefs.setString("$_aiConfig.model", model);
+    await prefs.setString("$_aiConfig.content", content);
   }
 
   // 加载题库

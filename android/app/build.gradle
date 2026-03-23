@@ -28,6 +28,9 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+
+        // 添加这行确保资源不被压缩
+        vectorDrawables.useSupportLibrary = true
     }
 
     buildTypes {

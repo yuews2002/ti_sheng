@@ -8,13 +8,16 @@ class AIService {
   static  String apiUrl = 'https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation';
   static String _apiKey = ''; // TODO: 替换为你的 API Key
   static String _model = '';
+  static String _content = '';
   // 获取配置的 getter
   static String get apiKey => _apiKey;
   static String get model => _model;
+  static String get content => _content;
 
   static Future<void> initializeConfig() async {
     final savedKey = await StorageService.loadAiKey();
     final savedModel = await StorageService.loadAiModel();
+    final savedContent = await StorageService.loadAiContent();
 
     if (savedKey != null && savedKey.isNotEmpty) {
       _apiKey = savedKey;
@@ -23,13 +26,18 @@ class AIService {
     if (savedModel != null && savedModel.isNotEmpty) {
       _model = savedModel;
     }
+
+    if (savedContent != null && savedContent.isNotEmpty) {
+      _content = savedContent;
+    }
   }
 
   // 更新配置的方法
-  static void updateConfig({required String apiKey, required String model}) {
+  static void updateConfig({required String apiKey, required String model, required String content}) {
     _apiKey = apiKey;
     _model = model;
-    StorageService.saveAiConfig(apiKey, model);
+    _content = content;
+    StorageService.saveAiConfig(apiKey, model,content);
   }
   static Stream<String> analyzeQuestionStream(Question question) async* {
     final client = http.Client();
@@ -55,7 +63,7 @@ class AIService {
           'messages': [
             {
               'role': 'system',
-              'content': '你是一位专业的答题助手，擅长分析和解答题目。你的任务是根据用户提供的题目、选项、正确答案和解析，给出详细的解题思路、考点分析和记忆技巧。请用简洁清晰的语言回答。回答时不允许使用带有格式，避免客户端解析错误。完成回答后加一个分析完成。'
+              'content': _content,
             },
             {
               'role': 'user',
@@ -114,7 +122,7 @@ class AIService {
         final errorBody = await streamedResponse.stream.bytesToString();
         throw Exception('API 请求失败：${streamedResponse.statusCode} - $errorBody');
       }
-    } catch (e) {
+    } catch (e) {//
       print('AI 分析错误：$e');
       yield 'AI 分析暂时不可用，请稍后重试。（错误：$e）';
     } finally {
@@ -191,11 +199,7 @@ class AIService {
     prompt.writeln('');
     prompt.writeln('参考解析：${question.explanation}');
     prompt.writeln('');
-    prompt.writeln('请根据以上信息，为我提供：');
-    prompt.writeln('1. 详细的解题思路');
-    prompt.writeln('2. 本题考查的核心知识点');
-    prompt.writeln('3. 相关的记忆技巧或口诀');
-    prompt.writeln('4. 容易混淆的点及如何区分');
+    prompt.writeln('请根据以上信息，设进行回答');
     
     return prompt.toString();
   }

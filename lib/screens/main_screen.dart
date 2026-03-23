@@ -28,6 +28,7 @@ class _MainScreenState extends State<MainScreen> {
       setState(() {
         _apiKeyController.text = AIService.apiKey;
         _modelController.text = AIService.model;
+        _contentController.text = AIService.content;
       });
     });
     _loadLearningProgress();
@@ -37,6 +38,7 @@ class _MainScreenState extends State<MainScreen> {
   void dispose() {
     _apiKeyController.dispose();
     _modelController.dispose();
+    _contentController.dispose();
     super.dispose();
   }
 
@@ -86,6 +88,7 @@ class _MainScreenState extends State<MainScreen> {
     // 重置输入框内容为当前配置
     _apiKeyController.text = AIService.apiKey;
     _modelController.text = AIService.model;
+    _contentController.text = AIService.content;
 
     showCupertinoModalPopup(
       context: context,
@@ -208,6 +211,31 @@ class _MainScreenState extends State<MainScreen> {
                         ),
                       ),
                       const SizedBox(height: 24),
+                      const Text(
+                        '提示词',
+                        style: TextStyle(
+                          inherit: true,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: CupertinoColors.label,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      CupertinoTextField(
+                        controller: _contentController,
+                        placeholder: '请输入 AI 回答提示词，例如:\n请分析这道题目的考点、解题思路和易错点',
+                        padding: const EdgeInsets.all(12),
+                        keyboardType: TextInputType.multiline,
+                        minLines: 4,
+                        maxLines: 8,
+                        expands: false,
+                        textAlignVertical: TextAlignVertical.top,
+                        decoration: BoxDecoration(
+                          color: CupertinoColors.systemGrey6,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: CupertinoColors.separator),
+                        ),
+                      ),
                       // 提示信息
                       Container(
                         padding: const EdgeInsets.all(12),
@@ -266,7 +294,7 @@ class _MainScreenState extends State<MainScreen> {
                           FocusScope.of(context).unfocus();
 
                           // 保存配置
-                          if (_apiKeyController.text.isEmpty || _modelController.text.isEmpty) {
+                          if (_apiKeyController.text.isEmpty || _modelController.text.isEmpty || _contentController.text.isEmpty) {
                             Navigator.pop(context);
                             showCupertinoDialog(
                               context: context,
@@ -288,6 +316,7 @@ class _MainScreenState extends State<MainScreen> {
                           AIService.updateConfig(
                             apiKey: _apiKeyController.text,
                             model: _modelController.text,
+                            content: _contentController.text,
                           );
 
                           Navigator.pop(context);
@@ -324,6 +353,7 @@ class _MainScreenState extends State<MainScreen> {
   // AI 配置相关
   final TextEditingController _apiKeyController = TextEditingController();
   final TextEditingController _modelController = TextEditingController();
+  final TextEditingController _contentController = TextEditingController();
 
   Future<void> _loadLearningProgress() async {
     try {
